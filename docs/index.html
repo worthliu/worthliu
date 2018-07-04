@@ -10,10 +10,15 @@
 </head>
 <body>
   <div id="app"></div>
+  <div data-app id="main">Please wait...</div>
   <script>
     window.$docsify = {
-      name: '',
-      repo: ''
+      name: 'worthliu-docs',
+      repo: 'worthliu/worthliu-docs',
+      basePath: 'http://worthliu.com',
+      el: '#main',
+      maxLevel: 5,
+      coverpage: true
     }
   </script>
   <script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
