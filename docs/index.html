@@ -34,7 +34,7 @@
         function (hook, vm) {
           hook.beforeEach(function (html) {
             // 每次开始解析Markdown内容时调用
-            var url = 'https://github.com/worthliu/worthliu-docs/master/docs/' + vm.route.file
+            var url = 'https://github.com/worthliu/worthliu-docs/edit/mirror_pull/docs/' + vm.route.file
             var editHtml = '[:memo: Edit Document](' + url + ')\n'
             return html
               + '\n\n----\n\n'
