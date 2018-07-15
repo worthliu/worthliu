@@ -16,6 +16,7 @@
       // basePath: 'http://worthliu.com',// 文档加载的根路径
       // coverpage: true,// 启用封面页,开启后市加载_coverpage.md 文件
       // loadNavbar:true,// 加载自定义导航栏,加载_navbar.md
+      coverpage: true,
       name: 'worthliu-docs',// 文档标题
       nameLink:'/',// 点击文档标题后跳转的链接地址
       repo: 'worthliu/worthliu-docs',// 配置仓库地址,会在页面右上角渲染一个GitHub Corner挂件
@@ -28,7 +29,18 @@
       // ext: '.md',
       notFoundPage: true,
       mergeNavbar: true,//小屏设备下合并导航栏到侧边栏
-      formatUpdated: '{MM}/{DD} {HH}:{mm}',//显示文档更新日期通过 {docsify-updated} 变量. 并且格式化日期通过 formatUpdated
+      formatUpdated: '{MM}/{DD} {HH}:{mm}',//显示文档更新日期通过 {docsify-updated} 变量. 并且格式化日期通过 formatUpda搜索ted
+      search: {
+        paths:'auto',
+        noData: {
+          '/zh-cn/': '找不到结果',
+          '/': 'No Results'
+        },
+        placeholder: {
+          '/zh-cn/': '搜索',
+          '/': 'Type to search'
+        },
+      }, 
       // 提供的钩子(hook)支持处理异步逻辑
       plugins: [
         function (hook, vm) {
@@ -38,8 +50,8 @@
             var editHtml = '[:memo: Edit Document](' + url + ')\n'
             return html
               + '\n\n----\n\n'
-              + 'Last modified {docsify-updated} '
               + editHtml
+              + ' Last modified {docsify-updated} '              
           })
         },
         function (hook) {
@@ -49,7 +61,7 @@
             '<span><a href="https://github.com/worthliu">worthliu</a> &copy;2018.</span>',
             '<span>Proudly published with <a href="https://github.com/worthliu/worthliu-docs" target="_blank">worthliu-docs</a>.</span>',
             '</footer>'
-          ].join('')
+          ].join('');
 
           hook.afterEach(function (html) {
             return html + footer
@@ -63,8 +75,10 @@
   <script src="//unpkg.com/docsify/lib/plugins/emoji.js"></script>
   <!-- 图片缩放 -->
   <script src="//unpkg.com/docsify/lib/plugins/zoom-image.js"></script>
-  <script src="//unpkg.com/prismjs/components/prism-java.js"></script>  
-  <script src="//unpkg.com/prismjs/components/prism-javascript.js"></script>
-  <script src="//unpkg.com/prismjs/components/prism-sql.js"></script>
+  <script src="//unpkg.com/prismjs/components/prism-markdown.min.js"></script>
+  <script src="//unpkg.com/prismjs/components/prism-java.min.js"></script>  
+  <script src="//unpkg.com/prismjs/components/prism-javascript.min.js"></script>
+  <script src="//unpkg.com/prismjs/components/prism-sql.min.js"></script>
+  <script src="//unpkg.com/docsify/lib/plugins/search.js"></script>
 </body>
 </html>
