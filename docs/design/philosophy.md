@@ -29,3 +29,21 @@
 * 可扩展性提高;
 
 > 劣势:
+
+
+## 依赖倒置原则(Dependence Inversion Principle)
+
+> 
+* 高层模块不应该依赖低层模块,两者都应该依赖其抽象
+* 抽象不应该依赖细节
+* 细节应该依赖抽象
+
+## 接口隔离原则(Interface Segregation Principle)
+
+## 最少知识原则(Least Knowledge Principle)
+
+## 开闭原则(Open Closed Priniciple)
+
+```
+软件实体应该对扩展开放,对修改关闭;
+```
