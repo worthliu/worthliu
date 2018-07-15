@@ -1,3 +1,5 @@
 # worthliu-docs
 
-> An awesome project.
+> The palace of wisdom, the world of knowledge!
+
+> Welcome to worthliu-docs!
