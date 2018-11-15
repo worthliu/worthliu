@@ -295,11 +295,6 @@ footer {
 }
 
 /*nav*/
-
-.menu-button span {
-    display: none;
-}
-
 .content-wrap {
   overflow-y: scroll;
   -webkit-overflow-scrolling: touch;
@@ -311,6 +306,10 @@ footer {
 }
 .menu-button:hover {
   opacity: 0.6;
+}
+
+.menu-button:focus{
+  outline: none;
 }
 
 .menu-button {
