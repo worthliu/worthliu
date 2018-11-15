@@ -25,7 +25,8 @@ ReentrantLock分为公平锁和非公平锁:
   3. `AbstractQueuedSynchronizer:accquire(int arg)`
   4. `ReentrantLock:tryAcquire(int acquires)`
 ![tryAcquire](/images/tryAcquire.png)
-* 使用公平锁时,解锁方法unlock()的方法调用轨迹如下:
+
+>* 使用公平锁时,解锁方法unlock()的方法调用轨迹如下:
   1. `ReentrantLock:unlock()`
   2. `AbstractQueuedSychronizer:release(int arg)`
   3. `Sync:tryRelease(int releases)`
