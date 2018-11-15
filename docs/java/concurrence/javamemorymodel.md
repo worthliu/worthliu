@@ -54,6 +54,7 @@
 ![JMM](/images/javamemorymodel.png)
 
 ### happens-before
+JMM除了主要规则外，还形成了happens-before规则来帮助完成线程之间的同步、通讯；
 
 从JDK5开始，java使用新的JSR-133内存模型，JSR-133使用happens-before的概念来阐述操作之间的内存可见性。
 ***(JMM中，如果一个操作执行的结果需要对另一个操作可见，那么这两个操作之间必须要存在happens-before关系)***
