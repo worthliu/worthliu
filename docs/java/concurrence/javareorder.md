@@ -32,9 +32,11 @@
 
 ## 程序顺序规则
 
->* double pi = 3.14;
-* double r = 1.0;
-* double area = pi * r * r;
+```
+double pi = 3.14;
+double r = 1.0;
+double area = pi * r * r;
+```
 
 >依据happens-before的程序顺序规则,上述代码存在三个happens-before关系:
 1. A happens-before B;
