@@ -6,7 +6,7 @@
 
 ## 锁释放和获取的内存语义
 
-* 当线程释放锁时，JMM会把该线程对应的本地内存中的共享变量刷新到主内存中。
+>* 当线程释放锁时，JMM会把该线程对应的本地内存中的共享变量刷新到主内存中。
 * 当线程获取锁时，JMM会把该线程对应的本地内存置为无效。从而使得被监视器保护的临界区必须要从主内存中去读取共享变量。
 
 ***（对比锁释放-获取的内存语义与volatile写-读的内存语义，两者具有相同的内存语义）***
@@ -14,34 +14,35 @@
 ## 锁内存语义的实现
 
 JDk中锁实现有两种：
-* synchronized，编译器通过在编译字节码时，在临界区添加内存屏障，交由JVM控制；
-* ReentrantLock,可重入锁,调用lock()方法获取锁;调用unlock()方法释放锁;ReentrantLock的实现依赖于Java同步器框架AbstractQueuedSynchronizer(AQS).AQS使用一个整型的volatile变量(命名为state)来维护同步状态;
+>* `synchronized`，编译器通过在编译字节码时，在临界区添加内存屏障，交由JVM控制；
+* `ReentrantLock`,可重入锁,调用`lock()`方法获取锁;调用`unlock()`方法释放锁;
+  * `ReentrantLock`的实现依赖于Java同步器框架`AbstractQueuedSynchronizer`(AQS).AQS使用一个整型的`volatile`变量(命名为`state`)来维护同步状态;
 
 ReentrantLock分为公平锁和非公平锁:
 >* 使用公平锁时,加锁方法lock()的方法调用轨迹如下:
-  1. ReentrantLock:lock()
-  2. FairSync:lock()
-  3. AbstractQueuedSynchronizer:accquire(int arg)
-  4. ReentrantLock:tryAcquire(int acquires)
+  1. `ReentrantLock:lock()`
+  2. `FairSync:lock()`
+  3. `AbstractQueuedSynchronizer:accquire(int arg)`
+  4. `ReentrantLock:tryAcquire(int acquires)`
 ![tryAcquire](/images/tryAcquire.png)
 * 使用公平锁时,解锁方法unlock()的方法调用轨迹如下:
-  1. ReentrantLock:unlock()
-  2. AbstractQueuedSychronizer:release(int arg)
-  3. Sync:tryRelease(int releases)
+  1. `ReentrantLock:unlock()`
+  2. `AbstractQueuedSychronizer:release(int arg)`
+  3. `Sync:tryRelease(int releases)`
 ![tryRelease](/images/tryRelease.png)
 
 (公平锁在释放锁的最后写volatile变量state;在获取锁时首先读这个volatile变量.**根据volatile的happens-before规则,释放锁的线程在写volatile变量之前可见的共享变量,在获取锁的线程读取同一个volatile变量后将立即变的对获取锁的线程可见**)
 
 >* 使用非公平锁时,加锁方法lock()的方法调用轨迹如下:
-  1. ReentrantLock:lock()
-  2. NonfairSync:lock()
-  3. AbstractQueuedSynchronizer:compareAndSetState(int expect, int update)
+  1. `ReentrantLock:lock()`
+  2. `NonfairSync:lock()`
+  3. `AbstractQueuedSynchronizer:compareAndSetState(int expect, int update)`
 ![compareAndSwapInt](/images/compareAndSwapInt.png) 
 
->* 编译器不会对volatile读与volatile读后面的任意内存操作重排序;
-* 编译器不会对volatile写与volatile写前面的任意内存操作重排序;
+>* 编译器不会对`volatile`读与`volatile`读后面的任意内存操作重排序;
+* 编译器不会对`volatile`写与`volatile`写前面的任意内存操作重排序;
 
-**(为了同时是实现volatile读和volatile写的内存语义,编译器不能对CAS与CAS前面和后面的任意内存操作重排序)**
+**(为了同时是实现`volatile`读和`volatile`写的内存语义,编译器不能对CAS与CAS前面和后面的任意内存操作重排序)**
 
 ![casSource](/images/casSource.png)
 
@@ -56,9 +57,9 @@ ReentrantLock分为公平锁和非公平锁:
 ---
 
 >公平锁和非公平锁的内存语义总结:
-1. 公平锁和非公平锁释放时,最后都要写一个volatile变量state;
-2. 公平锁获取是,首先去读这个volatile变量;
-3. 非公平锁获取时,首先会用CAS更新这个volatile变量,这个操作同时具有volatile读和volatile写的内存语义;
+1. 公平锁和非公平锁释放时,最后都要写一个`volatile`变量state;
+2. 公平锁获取是,首先去读这个`volatile`变量;
+3. 非公平锁获取时,首先会用CAS更新这个`volatile`变量,这个操作同时具有`volatile`读和`volatile`写的内存语义;
 
 ## concurrent包的实现
 
@@ -76,6 +77,6 @@ ReentrantLock分为公平锁和非公平锁:
 2. 然后,使用CAS的原子条件更新来实现线程之间的同步;
 3. 同时配合以volatile的读/写和CAS所具有的volatile读和写的内存语义来实现线程之间的通信;
 
->AQS,非阻塞数据结构和原子变量类(java.util.concurrent.atomic包中的类)
+>AQS,非阻塞数据结构和原子变量类(`java.util.concurrent.atomic`包中的类)
 
 ![cas](/images/cas.png)
