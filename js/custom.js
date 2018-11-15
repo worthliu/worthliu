@@ -24,8 +24,7 @@ $(function(){
 	function toggleMenu() {
 		if( isOpen ) {
 			classie.remove( bodyEl, 'show-menu' );
-		}
-		else {
+		}else {
 			classie.add( bodyEl, 'show-menu' );
 		}
 		isOpen = !isOpen;
