@@ -19,20 +19,21 @@ JDk中锁实现有两种：
   * `ReentrantLock`的实现依赖于Java同步器框架`AbstractQueuedSynchronizer`(AQS).AQS使用一个整型的`volatile`变量(命名为`state`)来维护同步状态;
 
 ReentrantLock分为公平锁和非公平锁:
->* 使用公平锁时,加锁方法lock()的方法调用轨迹如下:
+>* 使用公平锁时,加锁方法`lock()`的方法调用轨迹如下:
   1. `ReentrantLock:lock()`
   2. `FairSync:lock()`
   3. `AbstractQueuedSynchronizer:accquire(int arg)`
   4. `ReentrantLock:tryAcquire(int acquires)`
 ![tryAcquire](/images/tryAcquire.png)
 
->* 使用公平锁时,解锁方法unlock()的方法调用轨迹如下:
+>* 使用公平锁时,解锁方法`unlock()`的方法调用轨迹如下:
   1. `ReentrantLock:unlock()`
   2. `AbstractQueuedSychronizer:release(int arg)`
   3. `Sync:tryRelease(int releases)`
 ![tryRelease](/images/tryRelease.png)
 
-(公平锁在释放锁的最后写volatile变量state;在获取锁时首先读这个volatile变量.**根据volatile的happens-before规则,释放锁的线程在写volatile变量之前可见的共享变量,在获取锁的线程读取同一个volatile变量后将立即变的对获取锁的线程可见**)
+(公平锁在释放锁的最后写`volatile`变量`state`;
+ 在获取锁时首先读这个volatile变量.**根据volatile的happens-before规则,释放锁的线程在写volatile变量之前可见的共享变量,在获取锁的线程读取同一个volatile变量后将立即变的对获取锁的线程可见**)
 
 >* 使用非公平锁时,加锁方法lock()的方法调用轨迹如下:
   1. `ReentrantLock:lock()`
