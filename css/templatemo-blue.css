@@ -422,7 +422,7 @@ footer {
 .link-list {
   padding: 1.35em 0;
   margin: 0 0.75em;
-  border-bottom: 3px solid rgba(125,129,148,0.2);
+  /*border-bottom: 3px solid rgba(125,129,148,0.2);*/
   border-top: 3px solid rgba(125,129,148,0.2);
 }
 
