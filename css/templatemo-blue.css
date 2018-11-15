@@ -357,7 +357,7 @@ footer {
   height: 100%;
   opacity: 0;
   font-size: 0.65em;
-  color: #64697d;
+  color: #667fff;
   text-align: right;
 }
 
@@ -428,7 +428,7 @@ footer {
 .link-list a {
   display: block;
   margin: 0.25em 0;
-  color: #7d8194;
+  color: #667fff;
   padding: 0.5em 1.5em;
 }
 
