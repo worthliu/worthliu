@@ -60,15 +60,17 @@ Java对类的使用分为两种方式：主动使用和被动使用。其中主�
 从JDK源码查看可知，类加载器均是继承自java.lang.ClassLoader抽象类。让我们来看看其中几个重要方法：
 
 ```
-//加载指定名称（包括包名）的二进制类型，供用户调用的接口
+/**
+ *加载指定名称（包括包名）的二进制类型，供用户调用的接口
+ */
 public Class<?> loadClass(String name) throws ClassNotFoundException {
         return loadClass(name, false);
 }
 ```
+>加载指定名称（包括包名）的二进制类型;同时指定是否解析（但是这里的resolve参数不一定真正能达到解析的效果），供继承使用
 
 ```
-//加载指定名称（包括包名）的二进制类型;
-//同时指定是否解析（但是这里的resolve参数不一定真正能达到解析的效果），供继承使用
+
 protected Class<?> loadClass(String name, boolean resolve)
         throws ClassNotFoundException
     {
@@ -108,15 +110,17 @@ protected Class<?> loadClass(String name, boolean resolve)
     }
 ```
 
+>一般被loadClass方法调用去加载指定名称类，供继承使用
+
 ```
-//一般被loadClass方法调用去加载指定名称类，供继承使用
 protected Class<?> findClass(String name) throws ClassNotFoundException {
         throw new ClassNotFoundException(name);
 }
 ```
 
+>URLClassLoader.findClass(继承了ClassLoader.java)
+
 ```
-//URLClassLoader.findClass(继承了ClassLoader.java)
 protected Class<?> findClass(final String name)
         throws ClassNotFoundException
     {
@@ -176,9 +180,9 @@ private Class<?> defineClass(String name, Resource res) throws IOException {
 }
 ```
 
+>定义类型，一般在findClass方法中读取到对应字节码后调用，可以看出不可继承(JVM已经实现了对应具体功能，解析对应的字节码，产生对应的内部数据结构放置方法区，所以无需覆写，直接调用即可）
+
 ```
-//定义类型，一般在findClass方法中读取到对应字节码后调用，可以看出不可继承
-//（JVM已经实现了对应具体功能，解析对应的字节码，产生对应的内部数据结构放置方法区，所以无需覆写，直接调用即可）
 protected final Class<?> defineClass(String name, java.nio.ByteBuffer b,
                                      ProtectionDomain protectionDomain)
     throws ClassFormatError
