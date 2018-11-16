@@ -210,3 +210,29 @@ protected final Class<?> defineClass(String name, java.nio.ByteBuffer b,
     return c;
 }
 ```
+
+## `Class.forName()`加载类
+
+```
+public static Class<?> forName(String className) throws ClassNotFoundException {
+  return forName0(className, true, ClassLoader.getCallerClassLoader());
+}
+
+public static Class<?> forName(String name, boolean initialize,ClassLoader loader) throws ClassNotFoundException {
+    if (loader == null) {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) {
+        ClassLoader ccl = ClassLoader.getCallerClassLoader();
+        if (ccl != null) {
+            sm.checkPermission(SecurityConstants.GET_CLASSLOADER_PERMISSION);
+        }
+        }
+    }
+    return forName0(name, initialize, loader);
+}
+
+private static native Class forName0(String name, boolean initialize,ClassLoader loader) throws ClassNotFoundException;
+```
+
+>* 其中initialize参数是很重要的，它表示在加载同时是否完成初始化的工作（说明：单参数版本的forName方法默认是完成初始化的）
+*有些场景下需要将initialze设置为true来强制加载同时完成初始化。例如典型的就是利用DriverManager进行JDBC驱动程序类注册的问题。因为每一个JDBC驱动程序类的静态初始化方法都用DriverManager注册驱动程序，这样才能被应用程序使用。
