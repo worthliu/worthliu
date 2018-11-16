@@ -32,3 +32,13 @@ Java对类的使用分为两种方式：主动使用和被动使用。其中主�
 2. 这个类已经连接了。而完成上面两个步骤的正是Class的静态方法`forName()`所完成的,这个静态方法调用了启动类加载器,即加载java API的那个加载器。 
   * `newInstance`: 弱类型。低效率。只能调用无参构造。 
   * `new`: 强类型。相对高效。能调用任何public构造。
+
+## JDK类加载器
+
+>Java中有三个**默认类加载器**：
+1. **`启动类加载器（Bootstrap）`**：引导类装入器是用本地代码实现的类装入器，它负责将`Java_Home/lib`下面的核心类库或`-Xbootclasspath`选项指定的jar包加载到内存中。由于引导类加载器涉及到虚拟机本地实现细节，开发者无法直接获取到启动类加载器的引用，所以不允许直接通过引用进行操作；
+2. **`扩展类加载器（Extesion）`**：扩展类加载器是由Sun的`ExtClassLoader（sun.misc.Launcher$ExtClassLoader）`实现的。它负责将`Java_Home/lib/ext`或者由系统变量`-Djava.ext.dir`指定位置中的类库加载到内存中。开发者可以直接使用标准扩展类加载器
+3. **`系统类加载器（System）`**：系统类加载器是由Sun的`AppClassLoader（sun.misc.Launcher$AppClassLoader）`实现的。它负责将系统类路径`java-classpath`或`-Djava.class.path`变量所指的目录下的类库加载内存中。开发者可以直接使用系统类加载器
+4. **`线程上下文类加载器（context class loader）`**是从 JDK 1.2 开始引入的。类 `java.lang.Thread`中的方法 `getContextClassLoader()`和 `setContextClassLoader(ClassLoader cl)`用来获取和设置线程的上下文类加载器。
+  * 如果没有通过 `setContextClassLoader(ClassLoader cl)`方法进行设置的话，线程将继承其父线程的上下文类加载器。
+  * Java 应用运行的初始线程的上下文类加载器是系统类加载器。在线程中运行的代码可以通过此类加载器来加载类和资源
