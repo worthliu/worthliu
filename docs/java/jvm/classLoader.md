@@ -54,3 +54,155 @@ Java对类的使用分为两种方式：主动使用和被动使用。其中主�
 **（双亲委派模型的实现是通过组合继承调用父类加载器）**
 * 如果一个类加载器收到了类加载的请求，它首先不会自己去尝试加载这个类，而是把这个请求委派给`父类加载器`去完成(`扩展类加载器`将其父类加载器设置为`Null`，促使程序去寻找`启动类加载器`)，每一个层次的类加载器都是如此；
 * 因此所有的加载请求最终都应该传送到顶层的`启动类加载器`中，只有当`父加载器`反馈自己无法完成这个加载请求（它的搜索范围中没有找到所需的类）时，子加载器才会尝试自己去加载；
+
+## `java.lang.ClassLoader`
+
+从JDK源码查看可知，类加载器均是继承自java.lang.ClassLoader抽象类。让我们来看看其中几个重要方法：
+
+```
+//加载指定名称（包括包名）的二进制类型，供用户调用的接口
+public Class<?> loadClass(String name) throws ClassNotFoundException {
+        return loadClass(name, false);
+}
+```
+
+```
+//加载指定名称（包括包名）的二进制类型;
+//同时指定是否解析（但是这里的resolve参数不一定真正能达到解析的效果），供继承使用
+protected Class<?> loadClass(String name, boolean resolve)
+        throws ClassNotFoundException
+    {
+        synchronized (getClassLoadingLock(name)) {
+            // First, check if the class has already been loaded
+            Class<?> c = findLoadedClass(name);
+            if (c == null) {
+                long t0 = System.nanoTime();
+                try {
+                    if (parent != null) {
+                        c = parent.loadClass(name, false);//调用父类加载器
+                    } else {
+                        c = findBootstrapClassOrNull(name);//调用启动类加载器
+                    }
+                } catch (ClassNotFoundException e) {
+                    // ClassNotFoundException thrown if class not found
+                    // from the non-null parent class loader
+                }
+
+                if (c == null) {
+                    // If still not found, then invoke findClass in order
+                    // to find the class.
+                    long t1 = System.nanoTime();
+                    c = findClass(name);
+
+                    // this is the defining class loader; record the stats
+                    sun.misc.PerfCounter.getParentDelegationTime().addTime(t1 - t0);
+                    sun.misc.PerfCounter.getFindClassTime().addElapsedTimeFrom(t1);
+                    sun.misc.PerfCounter.getFindClasses().increment();
+                }
+            }
+            if (resolve) {
+                resolveClass(c);
+            }
+            return c;
+        }
+    }
+```
+
+```
+//一般被loadClass方法调用去加载指定名称类，供继承使用
+protected Class<?> findClass(String name) throws ClassNotFoundException {
+        throw new ClassNotFoundException(name);
+}
+```
+
+```
+//URLClassLoader.findClass(继承了ClassLoader.java)
+protected Class<?> findClass(final String name)
+        throws ClassNotFoundException
+    {
+        final Class<?> result;
+        try {
+            result = AccessController.doPrivileged(
+                new PrivilegedExceptionAction<Class<?>>() {
+                    public Class<?> run() throws ClassNotFoundException {
+                        String path = name.replace('.', '/').concat(".class");
+                        Resource res = ucp.getResource(path, false);
+                        if (res != null) {
+                            try {
+                                return defineClass(name, res);
+                            } catch (IOException e) {
+                                throw new ClassNotFoundException(name, e);
+                            }
+                        } else {
+                            return null;
+                        }
+                    }
+                }, acc);
+        } catch (java.security.PrivilegedActionException pae) {
+            throw (ClassNotFoundException) pae.getException();
+        }
+        if (result == null) {
+            throw new ClassNotFoundException(name);
+        }
+        return result;
+}
+
+private Class<?> defineClass(String name, Resource res) throws IOException {
+    long t0 = System.nanoTime();
+    int i = name.lastIndexOf('.');
+    URL url = res.getCodeSourceURL();
+    if (i != -1) {
+        String pkgname = name.substring(0, i);
+        // Check if package already loaded.
+        Manifest man = res.getManifest();
+        definePackageInternal(pkgname, man, url);
+    }
+    // Now read the class bytes and define the class
+    java.nio.ByteBuffer bb = res.getByteBuffer();
+    if (bb != null) {
+        // Use (direct) ByteBuffer:
+        CodeSigner[] signers = res.getCodeSigners();
+        CodeSource cs = new CodeSource(url, signers);
+        sun.misc.PerfCounter.getReadClassBytesTime().addElapsedTimeFrom(t0);
+        return defineClass(name, bb, cs);
+    } else {
+        byte[] b = res.getBytes();
+        // must read certificates AFTER reading bytes.
+        CodeSigner[] signers = res.getCodeSigners();
+        CodeSource cs = new CodeSource(url, signers);
+        sun.misc.PerfCounter.getReadClassBytesTime().addElapsedTimeFrom(t0);
+        return defineClass(name, b, 0, b.length, cs);
+    }
+}
+```
+
+```
+//定义类型，一般在findClass方法中读取到对应字节码后调用，可以看出不可继承
+//（JVM已经实现了对应具体功能，解析对应的字节码，产生对应的内部数据结构放置方法区，所以无需覆写，直接调用即可）
+protected final Class<?> defineClass(String name, java.nio.ByteBuffer b,
+                                     ProtectionDomain protectionDomain)
+    throws ClassFormatError
+{
+    int len = b.remaining();
+
+    // Use byte[] if not a direct ByteBufer:
+    if (!b.isDirect()) {
+        if (b.hasArray()) {
+            return defineClass(name, b.array(),
+                               b.position() + b.arrayOffset(), len,
+                               protectionDomain);
+        } else {
+            // no array, or read-only array
+            byte[] tb = new byte[len];
+            b.get(tb);  // get bytes out of byte buffer.
+            return defineClass(name, tb, 0, len, protectionDomain);
+        }
+    }
+
+    protectionDomain = preDefineClass(name, protectionDomain);
+    String source = defineClassSourceLocation(protectionDomain);
+    Class<?> c = defineClass2(name, b, b.position(), len, protectionDomain, source);
+    postDefineClass(c, protectionDomain);
+    return c;
+}
+```
