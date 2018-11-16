@@ -234,5 +234,26 @@ public static Class<?> forName(String name, boolean initialize,ClassLoader loade
 private static native Class forName0(String name, boolean initialize,ClassLoader loader) throws ClassNotFoundException;
 ```
 
->* 其中initialize参数是很重要的，它表示在加载同时是否完成初始化的工作（说明：单参数版本的forName方法默认是完成初始化的）
-*有些场景下需要将initialze设置为true来强制加载同时完成初始化。例如典型的就是利用DriverManager进行JDBC驱动程序类注册的问题。因为每一个JDBC驱动程序类的静态初始化方法都用DriverManager注册驱动程序，这样才能被应用程序使用。
+>* 其中`initialize`参数是很重要的，它表示在加载同时是否完成初始化的工作（说明：单参数版本的forName方法默认是完成初始化的）
+* 有些场景下需要将`initialze`设置为true来强制加载同时完成初始化。例如典型的就是利用`DriverManager`进行JDBC驱动程序类注册的问题。因为每一个JDBC驱动程序类的静态初始化方法都用`DriverManager`注册驱动程序，这样才能被应用程序使用。
+
+## 双亲委派模型破坏
+
+1. 双亲委派模型的第一次“被破坏”其实发生在双亲委派模型出现之前--即JDK1.2发布之前。
+  1. 由于双亲委派模型是在JDK1.2之后才被引入的，而类加载器和抽象类`java.lang.ClassLoader`则是JDK1.0时候就已经存在，面对已经存在的用户自定义类加载器的实现代码，Java设计者引入双亲委派模型时不得不做出一些妥协。
+  2. 为了向前兼容，JDK1.2之后的`java.lang.ClassLoader`添加了一个新的proceted方法`findClass()`，在此之前，用户去继承`java.lang.ClassLoader`的唯一目的就是重写`loadClass()`方法，因为虚拟机在进行类加载的时候会调用加载器的私有方法`loadClassInternal()`，而这个方法的唯一逻辑就是去调用自己的`loadClass()`。
+  3. JDK1.2之后已不再提倡用户再去覆盖`loadClass()`方法，应当把自己的类加载逻辑写到`findClass()`方法中，在`loadClass()`方法的逻辑里，如果父类加载器加载失败，则会调用自己的`findClass()`方法来完成加载，这样就可以保证新写出来的类加载器是符合双亲委派模型的。
+
+2. 双亲委派模型的第二次"被破坏"是这个模型自身的缺陷所导致的,**双亲委派模型很好地解决了`各个类加载器的基础类统一问题(越基础的类由越上层的加载器进行加载)`**;
+  1. 基础类之所以被称为"基础"，是因为它们总是作为被调用代码调用的API。但是，如果基础类又要调用用户的代码，那该怎么办呢。
+  2. 这并非是不可能的事情，一个典型的例子便是`JNDI服务`它的代码`由启动类加载器`去加载(`在JDK1.3时放进rt.jar`);
+  3. 但JNDI的目的就是**对资源进行集中管理和查找**，它需要调用独立厂商实现部部署在应用程序的classpath下的JNDI接口提供者(SPI, Service Provider Interface)的代码，但启动类加载器不可能"认识"之些代码，该怎么办？
+  4. 为了解决这个困境，Java设计团队只好引入了一个不太优雅的设计：线程上下文件类加载器(Thread Context ClassLoader);
+    1. 这个类加载器可以通过`java.lang.Thread`类的`setContextClassLoader()`方法进行设置，如果创建线程时还未设置，它将会从父线程中继承一个；
+    2. 如果在应用程序的全局范围内都没有设置过，那么这个类加载器默认就是应用程序类加载器。
+    3. 有线程上下文类加载器，JNDI服务使用这个线程上下文类加载器去加载所需要的SPI代码，也就是父类加载器请求子类加载器去完成类加载动作，这种行为实际上就是打通了双亲委派模型的层次结构来逆向使用类加载器，已经违背了双亲委派模型，但这也是无可奈何的事情。
+    4. `Java中所有涉及SPI的加载动作基本上都采用这种方式，例如JNDI,JDBC,JCE,JAXB和JBI等`。
+
+3. 双亲委派模型的第三次"被破坏"是由于用户对程序的动态性的追求导致的，例如OSGi的出现。在OSGi环境下，类加载器不再是双亲委派模型中的树状结构，而是进一步发展为网状结构。
+
+>**（从上述打破的结论而言，想要打破双亲委派模型，其实就是`继承ClassLoader`，`覆盖掉原始的findClass（）、loadClass（）`去自定义自己想要加载方式，这样JDK本身的加载模型就不可用了）**
