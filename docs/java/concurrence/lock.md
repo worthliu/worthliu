@@ -77,9 +77,9 @@ ReentrantLock分为公平锁和非公平锁:
 
 同时,volatile变量的读/写和CAS可以实现线程之间的通信.这形成呢整个concurrent包得以实现的基石.
 >concurrent包的源代码实现,会发现一个通用化的实现模式:
-1. 首先,声明共享变量为volatile;
+1. 首先,声明共享变量为`volatile`;
 2. 然后,使用CAS的原子条件更新来实现线程之间的同步;
-3. 同时配合以volatile的读/写和CAS所具有的volatile读和写的内存语义来实现线程之间的通信;
+3. 同时配合以`volatile`的读/写和CAS所具有的`volatile`读和写的内存语义来实现线程之间的通信;
 
 >AQS,非阻塞数据结构和原子变量类(`java.util.concurrent.atomic`包中的类)
 
