@@ -10,8 +10,12 @@
   * [线程](/java/concurrence/thread.md)
   * [线程池](/java/concurrence/executor.md)
 
-  
+
   * [JVM内存结构](/java/jvm/jvmmemorystructure.md)
+
+  * [双亲加载模型](/java/jvm/classLoader.md)
+
+
 
 * Design Patterns
   * [设计原则](/design/philosophy.md)
