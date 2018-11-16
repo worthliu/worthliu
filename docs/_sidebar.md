@@ -5,9 +5,12 @@
   * [顺序一致性](/java/concurrence/ordinalconsistency.md)
   * [volatile](/java/concurrence/volatile.md)
   * [锁](/java/concurrence/lock.md)
+  * [ThreadLocal](/java/concurrence/ThreadLocal.md)
   * [final](/java/concurrence/final.md)
   * [线程](/java/concurrence/thread.md)
   * [线程池](/java/concurrence/executor.md)
+
+  
   * [JVM内存结构](/java/jvm/jvmmemorystructure.md)
 
 * Design Patterns
