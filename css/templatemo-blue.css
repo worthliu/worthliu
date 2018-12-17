@@ -445,3 +445,13 @@ footer {
   font-weight: 700;
   vertical-align: middle;
 }
+
+.beian a{
+  color: #f5f5f5;
+  text-decoration: none;
+}
+
+.beian a:hover{
+  color: #555;
+  text-decoration: none;
+}
