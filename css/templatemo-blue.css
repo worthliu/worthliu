@@ -449,6 +449,7 @@ footer {
 .beian a{
   color: #f5f5f5;
   text-decoration: none;
+  padding: 0.5rem;
 }
 
 .beian a:hover{
